@@ -1,0 +1,2735 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mr. Rocha’s English Class: Wish / If Only</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Inter for high readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Base Typography & Smooth Scrolling */
+    html {
+      scroll-behavior: smooth;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* Shiny Blue Border for Name, Date, Answer Boxes, and Dropzones */
+    .shiny-blue-box {
+      border: 2.5px solid #0ea5e9 !important;
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.45),
+        0 0 12px rgba(14, 165, 233, 0.35),
+        inset 0 1px 2px rgba(255, 255, 255, 0.35);
+      transition: all 0.25s ease;
+    }
+    .shiny-blue-box:focus,
+    .shiny-blue-box:focus-within {
+      border-color: #0284c7 !important;
+      box-shadow:
+        0 0 0 3px rgba(56, 189, 248, 0.45),
+        0 0 18px rgba(2, 132, 199, 0.55);
+      outline: none;
+    }
+    .dark .shiny-blue-box {
+      border-color: #38bdf8 !important;
+      box-shadow:
+        0 0 0 1px rgba(125, 211, 252, 0.4),
+        0 0 14px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Locked State Visuals */
+    .locked-field {
+      opacity: 0.88;
+      cursor: not-allowed !important;
+      pointer-events: none;
+    }
+
+    /* Correct / Incorrect Highlights */
+    .answer-correct {
+      border-color: #10b981 !important;
+      background-color: rgba(16, 185, 129, 0.12) !important;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35) !important;
+    }
+    .answer-incorrect {
+      border-color: #ef4444 !important;
+      background-color: rgba(239, 68, 68, 0.12) !important;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.35) !important;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+
+    /* Puzzle Tile Styling */
+    .puzzle-slot {
+      aspect-ratio: 1 / 1;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .puzzle-piece {
+      cursor: grab;
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .puzzle-piece:active {
+      cursor: grabbing;
+      transform: scale(1.04);
+    }
+    .puzzle-selected {
+      outline: 3px solid #f59e0b;
+      transform: scale(1.04);
+      z-index: 10;
+    }
+
+    /* Word Chip Styling (Activity 8) */
+    .word-chip {
+      cursor: grab;
+      user-select: none;
+      touch-action: manipulation;
+      transition: all 0.18s ease;
+    }
+    .word-chip:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Print Styles: Start cleanly at the top of the page */
+    @media print {
+      @page {
+        margin: 1cm;
+        size: auto;
+      }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #app-shell {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+      }
+      .section-panel {
+        display: none !important;
+      }
+      #section-results {
+        display: block !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .print-break-inside {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Toast / Non-blocking Message Banner -->
+  <div id="toast-banner" class="no-print fixed bottom-5 right-5 z-50 hidden max-w-sm rounded-2xl bg-slate-900 text-white dark:bg-sky-600 px-5 py-3.5 shadow-2xl border border-sky-400/40 flex items-center gap-3 transition-all duration-300">
+    <i id="toast-icon" class="fa-solid fa-circle-info text-sky-400 dark:text-white text-lg"></i>
+    <p id="toast-text" class="text-sm font-medium leading-snug"></p>
+  </div>
+
+  <!-- Sticky Top Header & Progress Bar -->
+  <header class="no-print sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Brand / Class Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+            <i class="fa-solid fa-graduation-cap text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-display font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white leading-tight">
+              Mr. Rocha’s English Class: <span class="text-sky-600 dark:text-sky-400">Wish / If Only</span>
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Grade 10 • CEFR Level B2 • Interactive Worksheet</p>
+          </div>
+        </div>
+
+        <!-- Global Action Controls -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Submit & View Results Button -->
+          <button type="button" onclick="submitAndShowResults()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Submit & Results</span>
+          </button>
+
+          <!-- Dark / Light Mode Toggle -->
+          <button type="button" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark or Light Mode" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-amber-300 border border-slate-300 dark:border-slate-700 font-semibold text-xs sm:text-sm transition flex items-center gap-2 shadow-sm">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+            <span id="theme-label" class="hidden sm:inline">Dark Mode</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mt-3">
+        <div class="flex justify-between items-center text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+          <span id="progress-label">Overall Worksheet Progress: 0% (0/8 Activities Checked)</span>
+          <span id="current-step-label" class="text-sky-600 dark:text-sky-400">Introduction</span>
+        </div>
+        <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Quick Section Navigation Pills -->
+      <nav aria-label="Activity Sections" class="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <button type="button" onclick="goToSection(0)" data-nav="0" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-sky-600 text-white">Intro</button>
+        <button type="button" onclick="goToSection(1)" data-nav="1" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">1. Video</button>
+        <button type="button" onclick="goToSection(2)" data-nav="2" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">2. Story</button>
+        <button type="button" onclick="goToSection(3)" data-nav="3" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">3. Cornell Notes</button>
+        <button type="button" onclick="goToSection(4)" data-nav="4" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">4. Grammar (15)</button>
+        <button type="button" onclick="goToSection(5)" data-nav="5" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">5. Puzzle (25)</button>
+        <button type="button" onclick="goToSection(6)" data-nav="6" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">6. Reading</button>
+        <button type="button" onclick="goToSection(7)" data-nav="7" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">7. Listening</button>
+        <button type="button" onclick="goToSection(8)" data-nav="8" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">8. Sentence Order</button>
+        <button type="button" onclick="submitAndShowResults()" data-nav="9" class="nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Results</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Shell -->
+  <main id="app-shell" class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 0: INTRODUCTION (Includes Student Info & Image1 ONLY here)    -->
+    <!-- ===================================================================== -->
+    <section id="section-0" class="section-panel space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300 mb-2">
+              <i class="fa-solid fa-sparkles"></i> Welcome to Class
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              Mr. Rocha’s English Class: Wish / If Only
+            </h2>
+            <p class="mt-1 text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+              Complete the eight interactive activities below to master expressing present desires, past regrets, and hypothetical situations at the B2 level.
+            </p>
+          </div>
+        </div>
+
+        <!-- Student Name & Dropdown Calendar (Shiny Blue Border) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <div>
+            <label for="student-name" class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+              <i class="fa-solid fa-user-pen text-sky-500 mr-1.5"></i> Student Full Name
+            </label>
+            <input
+              type="text"
+              id="student-name"
+              placeholder="Type your full name here..."
+              oninput="syncStudentMeta()"
+              class="shiny-blue-box w-full rounded-2xl px-4 py-3.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium text-base placeholder-slate-400"
+            />
+          </div>
+
+          <div>
+            <label for="student-date" class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+              <i class="fa-solid fa-calendar-days text-sky-500 mr-1.5"></i> Select Date (Dropdown Calendar)
+            </label>
+            <input
+              type="date"
+              id="student-date"
+              onchange="syncStudentMeta()"
+              class="shiny-blue-box w-full rounded-2xl px-4 py-3.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium text-base"
+            />
+          </div>
+        </div>
+
+        <!-- Image1 Container: ONLY shown in the Introduction, fits completely & correctly -->
+        <div class="mt-7">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <i class="fa-regular fa-image text-sky-500 mr-1"></i> Class Visual Introduction
+            </span>
+          </div>
+          <div class="w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/70 flex items-center justify-center">
+            <img
+              id="img-intro"
+              src="Image1.jpg"
+              alt="Mr. Rocha's English Class - Wish and If Only Introduction"
+              class="w-full h-auto max-h-[540px] object-contain block mx-auto"
+              onerror="handleMediaFallback(this, 'Image1')"
+            />
+          </div>
+        </div>
+
+        <!-- Worksheet Overview Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7">
+          <div class="p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60">
+            <div class="text-sky-600 dark:text-sky-400 font-bold text-sm">Activities 1–2</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Video & Story Summary</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60">
+            <div class="text-indigo-600 dark:text-indigo-400 font-bold text-sm">Activities 3–4</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Cornell Notes & 15 Rewrites</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60">
+            <div class="text-amber-600 dark:text-amber-400 font-bold text-sm">Activities 5–6</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">25-Piece Puzzle & Reading</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold text-sm">Activities 7–8</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Listening & Sentence Order</div>
+          </div>
+        </div>
+
+        <!-- Navigation Footer -->
+        <div class="mt-8 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-end gap-3">
+          <button type="button" onclick="goToSection(1)" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transition flex items-center gap-2">
+            <span>Start Activity 1</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 1: VIDEO1 REFLECTION                                         -->
+    <!-- ===================================================================== -->
+    <section id="section-1" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300">
+            Activity 1 of 8 • Viewing & Speaking-to-Writing
+          </span>
+          <span id="status-badge-1" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 1: Watch the Video
+        </h2>
+        <p class="mt-1 text-slate-600 dark:text-slate-300 text-base font-medium">
+          Watch the video carefully. Tell Mr. Rocha about the video using complete sentences (try to include at least one <span class="text-sky-600 dark:text-sky-400 font-semibold">wish</span> or <span class="text-sky-600 dark:text-sky-400 font-semibold">if only</span> reflection!).
+        </p>
+
+        <!-- Video1: Uses all available space and fits completely and correctly -->
+        <div class="mt-5 w-full rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-black shadow-md">
+          <video
+            id="video1-player"
+            controls
+            playsinline
+            preload="metadata"
+            class="w-full h-auto max-h-[560px] object-contain block mx-auto"
+          >
+            <source src="Video1.mp4" type="video/mp4">
+            <source src="Video1.webm" type="video/webm">
+            Your browser does not support the HTML5 video tag. Place <strong>Video1.mp4</strong> in the same folder as this HTML file.
+          </video>
+        </div>
+
+        <!-- Student Response Box (Shiny Blue Border) -->
+        <div class="mt-6">
+          <div class="flex justify-between items-center mb-2">
+            <label for="act1-input" class="text-sm font-bold text-slate-800 dark:text-slate-200">
+              Your Message to Mr. Rocha:
+            </label>
+            <span id="act1-wordcount" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 words</span>
+          </div>
+          <textarea
+            id="act1-input"
+            rows="5"
+            oninput="updateWordCount('act1-input', 'act1-wordcount')"
+            placeholder="Dear Mr. Rocha, in this video I observed... The characters wish that... If only they had..."
+            class="shiny-blue-box w-full rounded-2xl p-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base leading-relaxed placeholder-slate-400"
+          ></textarea>
+        </div>
+
+        <!-- Feedback Container -->
+        <div id="act1-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Check Answers & Prev/Next Buttons -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(0)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-1" onclick="checkActivity1()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(2)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 2: READ AND SUMMARIZE THE STORY (IMAGE2)                     -->
+    <!-- ===================================================================== -->
+    <section id="section-2" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+            Activity 2 of 8 • Visual Story Comprehension
+          </span>
+          <span id="status-badge-2" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 2: Read and Summarize the Story
+        </h2>
+        <p class="mt-1 text-slate-600 dark:text-slate-300 text-base">
+          Examine and read the story in <strong>Image2</strong> below, then write a clear, well-structured summary in your own words.
+        </p>
+
+        <!-- Image2: Uses all space available and fits completely and correctly -->
+        <div class="mt-5 w-full rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm">
+          <img
+            id="img-story"
+            src="Image2.jpg"
+            alt="Story Image for Activity 2"
+            class="w-full h-auto object-contain block mx-auto"
+            onerror="handleMediaFallback(this, 'Image2')"
+          />
+        </div>
+
+        <!-- Summary Textarea -->
+        <div class="mt-6">
+          <div class="flex justify-between items-center mb-2">
+            <label for="act2-input" class="text-sm font-bold text-slate-800 dark:text-slate-200">
+              Your Story Summary:
+            </label>
+            <span id="act2-wordcount" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 words</span>
+          </div>
+          <textarea
+            id="act2-input"
+            rows="5"
+            oninput="updateWordCount('act2-input', 'act2-wordcount')"
+            placeholder="Summarize the main characters, the conflict/regret in the story, and how the events unfold..."
+            class="shiny-blue-box w-full rounded-2xl p-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base leading-relaxed placeholder-slate-400"
+          ></textarea>
+        </div>
+
+        <div id="act2-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(1)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-2" onclick="checkActivity2()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(3)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 3: CORNELL METHOD NOTETAKING (GRADE 10 - B2 LEVEL)           -->
+    <!-- ===================================================================== -->
+    <section id="section-3" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+            Activity 3 of 8 • Cornell Method Notetaking (Grade 10 • B2)
+          </span>
+          <span id="status-badge-3" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 3: Cornell Notes — <span class="text-sky-600 dark:text-sky-400">Wish / If Only</span>
+        </h2>
+        <p class="mt-1 text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+          Complete the Cornell Note-Taking sheet below. Answer all <strong>7 B2-level cue questions</strong> in the right-hand Notes column, then synthesize your understanding in a summary of <strong>about 80 words</strong> at the bottom.
+        </p>
+
+        <!-- Authentic Cornell Sheet Layout -->
+        <div class="mt-6 rounded-2xl border-2 border-slate-300 dark:border-slate-700 overflow-hidden shadow-md">
+          <!-- Cornell Top Header Bar -->
+          <div class="bg-slate-100 dark:bg-slate-800 px-5 py-3.5 border-b-2 border-slate-300 dark:border-slate-700 flex flex-wrap justify-between items-center gap-2 text-xs sm:text-sm font-bold">
+            <div><span class="text-sky-600 dark:text-sky-400">TOPIC:</span> Wish / If Only (Grade 10 • CEFR B2)</div>
+            <div><span class="text-sky-600 dark:text-sky-400">STUDENT:</span> <span class="mirror-student-name text-slate-700 dark:text-slate-200">Not Entered</span></div>
+            <div><span class="text-sky-600 dark:text-sky-400">DATE:</span> <span class="mirror-student-date text-slate-700 dark:text-slate-200">Not Selected</span></div>
+          </div>
+
+          <!-- Cornell Column Headers -->
+          <div class="grid grid-cols-1 md:grid-cols-12 bg-sky-50 dark:bg-sky-950/40 border-b-2 border-slate-300 dark:border-slate-700 font-display font-bold text-sm">
+            <div class="md:col-span-5 px-5 py-3 md:border-r-2 border-slate-300 dark:border-slate-700 text-sky-800 dark:text-sky-300">
+              <i class="fa-solid fa-circle-question mr-1.5"></i> CUES / 7 KEY QUESTIONS
+            </div>
+            <div class="hidden md:block md:col-span-7 px-5 py-3 text-indigo-800 dark:text-indigo-300">
+              <i class="fa-solid fa-pen-to-square mr-1.5"></i> NOTES & ANSWERS (WITH EXAMPLES)
+            </div>
+          </div>
+
+          <!-- 7 Cornell Rows -->
+          <div id="cornell-rows-container" class="divide-y divide-slate-200 dark:divide-slate-700">
+            <!-- Populated dynamically by JS -->
+          </div>
+
+          <!-- Cornell Bottom Summary Section -->
+          <div class="bg-amber-50/70 dark:bg-slate-800/80 border-t-2 border-slate-300 dark:border-slate-700 p-5">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+              <label for="cornell-summary" class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                <i class="fa-solid fa-align-left text-amber-500 mr-1.5"></i> SUMMARY (Write ~80 words explaining what you have understood about <em>wish</em> and <em>if only</em>)
+              </label>
+              <span id="cornell-wordcount" class="px-3 py-1 rounded-full text-xs font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200">
+                0 / ~80 words
+              </span>
+            </div>
+            <textarea
+              id="cornell-summary"
+              rows="4"
+              oninput="updateCornellSummaryCounter()"
+              placeholder="Write a clear ~80-word summary explaining how 'wish' and 'if only' are used for present desires, past regrets, abilities, and irritating habits..."
+              class="shiny-blue-box w-full rounded-2xl p-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm sm:text-base leading-relaxed"
+            ></textarea>
+            <div id="cornell-summary-feedback" class="hidden mt-3 text-sm font-medium"></div>
+          </div>
+        </div>
+
+        <div id="act3-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(2)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-3" onclick="checkActivity3()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(4)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 4: GRAMMAR GUIDE + 15 COMPOUND SENTENCE REWRITES             -->
+    <!-- ===================================================================== -->
+    <section id="section-4" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300">
+            Activity 4 of 8 • B2 Grammar Mastery & Sentence Transformation
+          </span>
+          <span id="status-badge-4" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 4: Complete Guide & 15 Regret Transformations
+        </h2>
+
+        <!-- Complete Explanation with Examples -->
+        <div class="mt-5 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/90 border border-sky-200 dark:border-slate-700 space-y-4">
+          <h3 class="font-display font-bold text-lg text-sky-900 dark:text-sky-300 flex items-center gap-2">
+            <i class="fa-solid fa-book-open"></i> Grammar Reference: How to Use <em>Wish</em> and <em>If Only</em>
+          </h3>
+          <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+            Both <strong>wish</strong> and <strong>if only</strong> express regrets or desires for reality to be different. <strong>If only</strong> carries stronger emotion and emphasis than <strong>I wish</strong>. Notice how the verb shifts one tense back into the past:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-sky-600 dark:text-sky-400">1. Present Situation We Want Different</div>
+              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Structure: wish / if only + Past Simple (or <em>were</em>)</div>
+              <p class="mt-2 text-slate-700 dark:text-slate-300">
+                • Reality: I live far from school.<br>
+                • Wish: <em>"I <strong>wish I didn't live</strong> so far from school."</em><br>
+                • Wish: <em>"<strong>If only I were</strong> better at public speaking."</em>
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-indigo-600 dark:text-indigo-400">2. Regret About a Past Event</div>
+              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Structure: wish / if only + Past Perfect (had + V3)</div>
+              <p class="mt-2 text-slate-700 dark:text-slate-300">
+                • Reality: I forgot to set my alarm, so I missed the bus.<br>
+                • Wish: <em>"I <strong>wish I had set</strong> my alarm."</em><br>
+                • Wish: <em>"<strong>If only I hadn't forgotten</strong> my alarm!"</em>
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-emerald-600 dark:text-emerald-400">3. Present Ability or Possibility</div>
+              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Structure: wish / if only + could + base verb</div>
+              <p class="mt-2 text-slate-700 dark:text-slate-300">
+                • Reality: I can't play the piano.<br>
+                • Wish: <em>"I <strong>wish I could play</strong> the piano."</em><br>
+                • Wish: <em>"<strong>If only we could travel</strong> this summer!"</em>
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-amber-600 dark:text-amber-400">4. Annoying Habits / Desired External Change</div>
+              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Structure: wish / if only + someone/something + would + base verb</div>
+              <p class="mt-2 text-slate-700 dark:text-slate-300">
+                • Reality: My brother always interrupts me.<br>
+                • Wish: <em>"I <strong>wish my brother wouldn't interrupt</strong> me."</em><br>
+                • Note: Do not use <em>I wish I would...</em> for your own actions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 15 Compound Sentences Exercise -->
+        <div class="mt-7">
+          <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white mb-1">
+            Practice Exercise: Rewrite the 15 Compound Sentences Using <em>Wish</em> or <em>If Only</em>
+          </h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-5">
+            Read each compound sentence expressing regret and rewrite the core regret using <strong>I wish...</strong> or <strong>If only...</strong> in the shiny blue box.
+          </p>
+
+          <div id="act4-items-container" class="space-y-4">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <div id="act4-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(3)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-4" onclick="checkActivity4()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(5)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 5: 25-PIECE IMAGE3 PUZZLE WITH TIMER                         -->
+    <!-- ===================================================================== -->
+    <section id="section-5" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            Activity 5 of 8 • 25-Square Interactive Image Puzzle
+          </span>
+          <span id="status-badge-5" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 5: Reconstruct Image3 (25-Piece Puzzle)
+        </h2>
+        <p class="mt-1 text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+          Click <strong>Start Puzzle</strong> to start the timer. Drag and drop (or tap a piece and tap a square on mobile/tablet) to place all <strong>25 shuffled squares</strong> into the grid to match the target <strong>Image3</strong>.
+        </p>
+
+        <!-- Timer & Controls Bar -->
+        <div class="mt-5 p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shadow">
+              <i class="fa-solid fa-stopwatch"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Elapsed Time</div>
+              <div id="puzzle-timer" class="font-display font-extrabold text-2xl text-slate-900 dark:text-white tabular-nums">00:00</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" id="puzzle-start-btn" onclick="startPuzzleTimer()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+              <i class="fa-solid fa-play"></i>
+              <span>Start</span>
+            </button>
+            <button type="button" id="puzzle-restart-btn" onclick="restartPuzzle()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition flex items-center gap-2">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>Restart</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Puzzle Workspace: Full Space Available for Image3 -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Main 5x5 Puzzle Board -->
+          <div class="lg:col-span-8">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                <i class="fa-solid fa-border-all text-sky-500 mr-1.5"></i> Puzzle Board (5 × 5 = 25 Squares)
+              </span>
+              <span id="puzzle-placed-count" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 / 25 placed</span>
+            </div>
+            <div
+              id="puzzle-board"
+              class="shiny-blue-box w-full aspect-square grid grid-cols-5 grid-rows-5 gap-0.5 p-1 rounded-2xl bg-slate-200 dark:bg-slate-800 overflow-hidden"
+            >
+              <!-- 25 drop slots injected by JS -->
+            </div>
+          </div>
+
+          <!-- Side Panel: Target Image3 Reference + Shuffled Pieces Tray -->
+          <div class="lg:col-span-4 space-y-5">
+            <!-- Target Image3 Reference -->
+            <div>
+              <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
+                <i class="fa-solid fa-eye text-emerald-500 mr-1.5"></i> Target Image3 Reference
+              </div>
+              <div class="w-full rounded-2xl overflow-hidden border-2 border-emerald-400/70 bg-slate-100 dark:bg-slate-800 shadow">
+                <img
+                  id="puzzle-target-preview"
+                  src="Image3.jpg"
+                  alt="Target Image3 Reference"
+                  class="w-full h-auto aspect-square object-cover block"
+                />
+              </div>
+            </div>
+
+            <!-- Shuffled Pieces Bank -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                  <i class="fa-solid fa-puzzle-piece text-amber-500 mr-1.5"></i> Shuffled Pieces
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">Drag or Tap</span>
+              </div>
+              <div
+                id="puzzle-tray"
+                ondragover="event.preventDefault()"
+                ondrop="handleDropToTray(event)"
+                class="shiny-blue-box min-h-[180px] max-h-[340px] overflow-y-auto p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 grid grid-cols-5 gap-1.5"
+              >
+                <!-- 25 shuffled tiles injected by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="act5-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(4)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-5" onclick="checkActivity5()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(6)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 6: READING COMPREHENSION ("THE BRIDGE")                      -->
+    <!-- ===================================================================== -->
+    <section id="section-6" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300">
+            Activity 6 of 8 • Literature & Reading Comprehension
+          </span>
+          <span id="status-badge-6" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 6: Read the Text and Answer the Questions
+        </h2>
+
+        <!-- Reading Passage: The Bridge -->
+        <article class="mt-5 p-6 sm:p-7 rounded-2xl bg-amber-50/60 dark:bg-slate-800/90 border border-amber-200/80 dark:border-slate-700 space-y-4 text-slate-800 dark:text-slate-200 text-base sm:text-lg leading-relaxed">
+          <h3 class="font-display font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white border-b border-amber-200 dark:border-slate-700 pb-2">
+            Reading Passage: The Bridge
+          </h3>
+          <p>
+            The bridge was a thin gray line above the gorge, and Robert lay behind a pine tree and watched it. The morning was cold. Below him the river made a hard, steady noise over the rocks. He did not like the noise. It covered the sounds he needed to hear.
+          </p>
+          <p>
+            Pilar sat beside him and cleaned her knife on her sleeve. She said nothing for a long time. Then she said, “The old man will come at dawn with the horses.”
+          </p>
+          <p>“If he comes,” Robert said.</p>
+          <p>“He will come. He is stubborn, and that is why he is still alive.”</p>
+          <p>
+            Robert looked at the guard at the end of the bridge. The guard was young and kept stamping his feet to stay warm. He was only a boy, and Robert wished he were not there. But wishing was a thing for other men in other places.
+          </p>
+          <p>
+            “If only we had more dynamite,” he said. “If only the others had not left in the night.”
+          </p>
+          <p>“They were afraid,” Pilar said. “Fear is not a crime. It is only a weight.”</p>
+          <p>“I know.” He touched the small wire in his pocket. “I wish I could say I was not afraid too.”</p>
+          <p>She laughed softly, without any joy. “Then you are an honest man. That is rare.”</p>
+          <p>
+            The wind turned and brought the smell of smoke from the village. Somewhere a dog barked twice and stopped. Robert counted the minutes on his watch. Four hours remained. He thought of the girl in the cave, and of how little time two people can steal from a war.
+          </p>
+          <p>
+            He took a breath and checked the wire again. The work had to be done well, because there would be no second chance. In the pines behind him a bird began to sing, as if nothing in the world had changed.
+          </p>
+        </article>
+
+        <!-- 6 Comprehension Questions -->
+        <div class="mt-7">
+          <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white mb-4">
+            Comprehension Questions
+          </h3>
+          <div id="act6-questions-container" class="space-y-5">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <div id="act6-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(5)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-6" onclick="checkActivity6()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(7)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 7: LISTENING COMPREHENSION (AUDIO1, AUDIO2, AUDIO3)          -->
+    <!-- ===================================================================== -->
+    <section id="section-7" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300">
+            Activity 7 of 8 • Listening & Summarizing
+          </span>
+          <span id="status-badge-7" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 7: Listen and Summarize What Each Person Says
+        </h2>
+        <p class="mt-1 text-slate-600 dark:text-slate-300 text-base">
+          Play each audio track and summarize the speaker's main message, thoughts, and wishes in the shiny blue answer boxes.
+        </p>
+
+        <!-- Speakers Grid / Table Layout -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Speaker 1: Valerie / Karla -->
+          <div class="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shadow">V</div>
+                <div>
+                  <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">Valerie</h3>
+                  <p class="text-xs font-semibold text-pink-600 dark:text-pink-400">What does Karla say?</p>
+                </div>
+              </div>
+              <audio controls preload="metadata" class="w-full rounded-xl">
+                <source src="Audio1.mp3" type="audio/mpeg">
+                <source src="Audio1.wav" type="audio/wav">
+                Your browser does not support audio playback.
+              </audio>
+            </div>
+            <div>
+              <label for="act7-input-1" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                Summary (What does Karla say?):
+              </label>
+              <textarea
+                id="act7-input-1"
+                rows="4"
+                placeholder="Summarize what Karla says in Audio1..."
+                class="shiny-blue-box w-full rounded-xl p-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm leading-relaxed"
+              ></textarea>
+              <div id="act7-fb-1" class="hidden mt-2 text-xs font-medium"></div>
+            </div>
+          </div>
+
+          <!-- Speaker 2: Michael -->
+          <div class="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-sky-500 text-white font-bold flex items-center justify-center shadow">M</div>
+                <div>
+                  <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">Michael</h3>
+                  <p class="text-xs font-semibold text-sky-600 dark:text-sky-400">What does Michael think?</p>
+                </div>
+              </div>
+              <audio controls preload="metadata" class="w-full rounded-xl">
+                <source src="Audio2.mp3" type="audio/mpeg">
+                <source src="Audio2.wav" type="audio/wav">
+                Your browser does not support audio playback.
+              </audio>
+            </div>
+            <div>
+              <label for="act7-input-2" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                Summary (What does Michael think?):
+              </label>
+              <textarea
+                id="act7-input-2"
+                rows="4"
+                placeholder="Summarize what Michael thinks in Audio2..."
+                class="shiny-blue-box w-full rounded-xl p-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm leading-relaxed"
+              ></textarea>
+              <div id="act7-fb-2" class="hidden mt-2 text-xs font-medium"></div>
+            </div>
+          </div>
+
+          <!-- Speaker 3: David -->
+          <div class="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center shadow">D</div>
+                <div>
+                  <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">David</h3>
+                  <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">What does David wish?</p>
+                </div>
+              </div>
+              <audio controls preload="metadata" class="w-full rounded-xl">
+                <source src="Audio3.mp3" type="audio/mpeg">
+                <source src="Audio3.wav" type="audio/wav">
+                Your browser does not support audio playback.
+              </audio>
+            </div>
+            <div>
+              <label for="act7-input-3" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                Summary (What does David wish?):
+              </label>
+              <textarea
+                id="act7-input-3"
+                rows="4"
+                placeholder="Summarize what David wishes in Audio3..."
+                class="shiny-blue-box w-full rounded-xl p-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm leading-relaxed"
+              ></textarea>
+              <div id="act7-fb-3" class="hidden mt-2 text-xs font-medium"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="act7-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(6)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-7" onclick="checkActivity7()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="goToSection(8)" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>Next Activity</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ACTIVITY 8: 8 COMPLEX SHUFFLED SENTENCES + AUDIO BUTTONS              -->
+    <!-- ===================================================================== -->
+    <section id="section-8" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+            Activity 8 of 8 • Complex Syntax & Listening
+          </span>
+          <span id="status-badge-8" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            Not Checked Yet
+          </span>
+        </div>
+
+        <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
+          Activity 8: Unscramble the 8 Complex Sentences
+        </h2>
+        <p class="mt-1 text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+          Click the <strong>Listen</strong> button on each card to hear the complete sentence read aloud. Then <strong>drag and drop</strong> (or simply <strong>tap/click</strong>) the shuffled word tiles into the shiny blue sentence box in the exact order.
+        </p>
+
+        <div id="act8-sentences-container" class="mt-6 space-y-6">
+          <!-- 8 complex scrambled sentence builders injected by JS -->
+        </div>
+
+        <div id="act8-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
+
+        <!-- Navigation & Check -->
+        <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onclick="goToSection(7)" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" id="check-btn-8" onclick="checkActivity8()" class="px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Check Answers</span>
+          </button>
+
+          <button type="button" onclick="submitAndShowResults()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-sm shadow-lg transition flex items-center gap-2">
+            <i class="fa-solid fa-flag-checkered"></i>
+            <span>Submit & View Final Results</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- RESULTS DASHBOARD (CHARTS, GRAPHS, 8 RECOMMENDATIONS & PRINT)         -->
+    <!-- ===================================================================== -->
+    <section id="section-results" class="section-panel hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 dark:border-slate-800">
+        <!-- Results Header -->
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 mb-2">
+              <i class="fa-solid fa-award"></i> Official Performance Report
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              Mr. Rocha’s English Class: Wish / If Only
+            </h2>
+            <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm font-semibold text-slate-600 dark:text-slate-300">
+              <span><i class="fa-solid fa-user text-sky-500 mr-1.5"></i> Student: <strong id="res-student-name" class="text-slate-900 dark:text-white">Student</strong></span>
+              <span><i class="fa-solid fa-calendar text-sky-500 mr-1.5"></i> Date: <strong id="res-student-date" class="text-slate-900 dark:text-white">Not Selected</strong></span>
+              <span><i class="fa-solid fa-layer-group text-sky-500 mr-1.5"></i> Level: <strong class="text-slate-900 dark:text-white">Grade 10 • CEFR B2</strong></span>
+            </div>
+          </div>
+
+          <!-- Action Buttons (Hidden on Print) -->
+          <div class="no-print flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="printResults()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-sm shadow-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-print"></i>
+              <span>Print Results</span>
+            </button>
+            <button type="button" onclick="goToSection(1)" class="px-4 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition flex items-center gap-2">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>Back to Activities</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Overall Score Hero Banner + Colorful Donut Chart -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center p-6 rounded-3xl bg-gradient-to-r from-sky-50 via-indigo-50 to-purple-50 dark:from-slate-800 dark:via-slate-800/90 dark:to-indigo-950/60 border border-sky-200 dark:border-slate-700 print-break-inside">
+          <!-- Colorful SVG Radial Donut Gauge -->
+          <div class="md:col-span-4 flex flex-col items-center justify-center">
+            <div class="relative w-44 h-44">
+              <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                <defs>
+                  <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#0ea5e9" />
+                    <stop offset="50%" stop-color="#8b5cf6" />
+                    <stop offset="100%" stop-color="#10b981" />
+                  </linearGradient>
+                </defs>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" stroke-width="12" class="text-slate-200 dark:text-slate-700" />
+                <circle id="overall-donut-circle" cx="60" cy="60" r="50" fill="none" stroke="url(#scoreGradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" class="transition-all duration-1000" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span id="res-overall-percent" class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 dark:text-white">0%</span>
+                <span id="res-grade-badge" class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 mt-0.5">Evaluating</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overall Teacher Feedback -->
+          <div class="md:col-span-8 space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
+              <i class="fa-solid fa-comment-dots"></i> Mr. Rocha’s Overall Evaluation
+            </div>
+            <h3 id="res-headline" class="font-display font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white">
+              Performance Summary
+            </h3>
+            <p id="res-overall-feedback" class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+              Reviewing your completed work across all 8 activities...
+            </p>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+              <div class="p-3 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-center">
+                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Completed</div>
+                <div id="res-completed-count" class="font-display font-extrabold text-lg text-sky-600 dark:text-sky-400">0 / 8</div>
+              </div>
+              <div class="p-3 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-center">
+                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Strongest Area</div>
+                <div id="res-strongest-area" class="font-display font-extrabold text-sm sm:text-base text-emerald-600 dark:text-emerald-400 truncate">—</div>
+              </div>
+              <div class="p-3 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-center">
+                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Focus Area</div>
+                <div id="res-focus-area" class="font-display font-extrabold text-sm sm:text-base text-amber-600 dark:text-amber-400 truncate">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colorful Charts & Bar Graphs Grid -->
+        <div class="mt-7 grid grid-cols-1 lg:grid-cols-2 gap-6 print-break-inside">
+          <!-- Chart 1: Colorful Activity-by-Activity Bar Graph -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+            <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-sky-500"></i> Activity-by-Activity Score Chart
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Percentage achieved in each of the 8 worksheet activities</p>
+            <div id="res-activity-bars" class="space-y-3">
+              <!-- Colorful animated horizontal bars injected by JS -->
+            </div>
+          </div>
+
+          <!-- Chart 2: Colorful Skill Domain Radar / Column Chart -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+            <div>
+              <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-chart-simple text-purple-500"></i> CEFR B2 Skill Domain Graph
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Performance grouped by core English language competencies</p>
+            </div>
+            <!-- Colorful Vertical Column Graph -->
+            <div id="res-skill-columns" class="h-56 flex items-end justify-around gap-3 pt-6 pb-2 px-2 border-b-2 border-slate-300 dark:border-slate-600">
+              <!-- Vertical colorful bars injected by JS -->
+            </div>
+            <div id="res-skill-labels" class="grid grid-cols-4 gap-2 pt-2 text-center text-xs font-bold text-slate-700 dark:text-slate-300">
+              <!-- Labels injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Activity Breakdown Table -->
+        <div class="mt-7 print-break-inside">
+          <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-emerald-500"></i> Detailed Activity Results
+          </h3>
+          <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-slate-700">
+                  <th class="py-3 px-4">Activity</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4">Score</th>
+                  <th class="py-3 px-4">Specific Feedback</th>
+                </tr>
+              </thead>
+              <tbody id="res-breakdown-tbody" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+                <!-- Rows populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 8 Specific Personalized Recommendations -->
+        <div class="mt-7 p-6 rounded-3xl bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50 dark:from-slate-800 dark:to-slate-800/90 border border-indigo-200 dark:border-slate-700 print-break-inside">
+          <h3 class="font-display font-extrabold text-xl text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-amber-500"></i> 8 Specific Recommendations Based on Your Answers & Results
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-4">
+            Personalized action steps generated from your performance across grammar, reading, listening, writing, and syntax:
+          </p>
+          <div id="res-recommendations-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <!-- 8 tailored recommendation cards injected by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* =========================================================================
+       STATE & DATA DEFINITIONS
+    ========================================================================= */
+    const state = {
+      currentSection: 0,
+      checked: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false, 8: false },
+      scores:  { 1: 0,     2: 0,     3: 0,     4: 0,     5: 0,     6: 0,     7: 0,     8: 0     },
+      details: { 1: '',    2: '',    3: '',    4: '',    5: '',    6: '',    7: '',    8: ''    },
+      puzzle: {
+        imageSrc: 'Image3.jpg',
+        timerSeconds: 0,
+        timerInterval: null,
+        running: false,
+        board: Array(25).fill(null), // index = slot 0..24, value = pieceId 0..24
+        tray: [],                    // array of pieceIds 0..24
+        selectedPiece: null
+      },
+      sentenceState: [] // For Activity 8
+    };
+
+    const sectionTitles = [
+      "Introduction",
+      "Activity 1: Video Reflection",
+      "Activity 2: Story Summary",
+      "Activity 3: Cornell Notes",
+      "Activity 4: Grammar & 15 Rewrites",
+      "Activity 5: 25-Piece Puzzle",
+      "Activity 6: Reading Comprehension",
+      "Activity 7: Listening Summaries",
+      "Activity 8: Sentence Ordering",
+      "Final Results & Analytics"
+    ];
+
+    /* Activity 3: 7 B2 Cornell Questions */
+    const cornellQuestions = [
+      {
+        q: "1. How do we express a wish or regret about a present situation we want to be different? Give the structure and an example.",
+        keywords: ["past simple", "simple past", "were", "present", "wish", "if only"],
+        model: "Structure: wish / if only + Past Simple. Example: 'I wish I had more free time during the school week.'"
+      },
+      {
+        q: "2. How do we express regret about a past action or event that can no longer be changed? Give the structure and an example.",
+        keywords: ["past perfect", "had", "past", "regret", "wish", "if only"],
+        model: "Structure: wish / if only + Past Perfect (had + past participle). Example: 'If only I had studied harder for yesterday's exam.'"
+      },
+      {
+        q: "3. When do we use 'wish / if only + would + base verb', and why don't we normally use 'would' with 'I' or 'we'?",
+        keywords: ["annoying", "habit", "change", "someone else", "control", "other", "would"],
+        model: "We use 'would' to complain about annoying habits or wish for external change. We avoid 'I wish I would' because we control our own actions (use 'could' instead)."
+      },
+      {
+        q: "4. What is the difference in tone or emphasis between 'I wish' and 'If only'?",
+        keywords: ["strong", "stronger", "emphatic", "emphasis", "dramatic", "emotion", "intense"],
+        model: "'If only' is more emphatic, dramatic, and emotionally intense than 'I wish', often appearing as an exclamation."
+      },
+      {
+        q: "5. Why is 'were' frequently used instead of 'was' after 'wish / if only' (e.g., 'I wish I were taller')?",
+        keywords: ["subjunctive", "hypothetical", "unreal", "formal", "imaginary", "were"],
+        model: "'Were' is the past subjunctive form used for hypothetical, imaginary, or unreal situations; it is standard in formal English."
+      },
+      {
+        q: "6. How do we express a desire for a present or future ability or permission that we currently lack?",
+        keywords: ["could", "ability", "infinitive", "base", "can"],
+        model: "Structure: wish / if only + could + base verb. Example: 'I wish I could speak three languages fluently.'"
+      },
+      {
+        q: "7. What common verb tense error do B2 learners make when expressing past regrets with 'wish'?",
+        keywords: ["past simple", "past perfect", "would have", "will", "present", "had"],
+        model: "Learners often mistakenly use Past Simple or 'would have' instead of Past Perfect (e.g., saying 'I wish I went' instead of 'I wish I had gone')."
+      }
+    ];
+
+    /* Activity 4: 15 Compound Sentences Expressing Regret */
+    const rewriteItems = [
+      {
+        prompt: "I stayed up too late playing video games, so I fell asleep during math class.",
+        model: "I wish I hadn't stayed up so late playing video games. / If only I had gone to bed earlier.",
+        patterns: [/hadn['’]?t stayed|had not stayed|had gone to bed|hadn['’]?t played|had not played/i]
+      },
+      {
+        prompt: "Maria didn't save her presentation file, and now all her slides are gone.",
+        model: "Maria wishes she had saved her presentation file. / If only Maria had saved her slides!",
+        patterns: [/had saved|hadn['’]?t forgotten to save|had backed up/i]
+      },
+      {
+        prompt: "We live in a noisy apartment downtown, and I can never concentrate on my homework.",
+        model: "I wish we didn't live in such a noisy apartment downtown. / If only we lived somewhere quieter!",
+        patterns: [/didn['’]?t live|did not live|lived in a quiet/i]
+      },
+      {
+        prompt: "I don't know how to swim, so I can't join my friends at the lake this weekend.",
+        model: "I wish I knew how to swim (or could swim). / If only I could swim!",
+        patterns: [/knew how to swim|could swim/i]
+      },
+      {
+        prompt: "My younger brother always borrows my headphones without asking, and it really annoys me.",
+        model: "I wish my younger brother wouldn't borrow my headphones without asking. / If only he would ask first!",
+        patterns: [/wouldn['’]?t borrow|would not borrow|would ask|would stop borrowing/i]
+      },
+      {
+        prompt: "They forgot to bring a map on the hike, and they got completely lost in the forest.",
+        model: "They wish they had brought a map on the hike. / If only they hadn't forgotten their map!",
+        patterns: [/had brought|had taken|hadn['’]?t forgotten|had not forgotten/i]
+      },
+      {
+        prompt: "It is raining heavily outside, so we have to cancel our outdoor soccer match.",
+        model: "I wish it weren't raining so heavily outside. / If only it would stop raining!",
+        patterns: [/weren['’]?t raining|wasn['’]?t raining|would stop raining|were sunny|was sunny/i]
+      },
+      {
+        prompt: "Carlos spent all his allowance on snacks, so he doesn't have enough money for the concert ticket.",
+        model: "Carlos wishes he hadn't spent all his allowance on snacks. / If only he had saved his money!",
+        patterns: [/hadn['’]?t spent|had not spent|had saved/i]
+      },
+      {
+        prompt: "I am not tall enough to reach the top shelf in the library, so I have to ask for help.",
+        model: "I wish I were taller. / If only I were tall enough to reach the top shelf!",
+        patterns: [/were taller|was taller|were tall enough|was tall enough|could reach/i]
+      },
+      {
+        prompt: "She spoke rudely to her best friend yesterday, and now she feels terrible about it.",
+        model: "She wishes she hadn't spoken rudely to her best friend yesterday. / If only she had been kinder!",
+        patterns: [/hadn['’]?t spoken|had not spoken|had spoken politely|had been nicer|had been kinder/i]
+      },
+      {
+        prompt: "We didn't book our train tickets in advance, so the prices are extremely expensive today.",
+        model: "I wish we had booked our train tickets in advance. / If only we had bought them earlier!",
+        patterns: [/had booked|had bought|had purchased/i]
+      },
+      {
+        prompt: "I can't speak Japanese, so I need subtitles whenever I watch anime.",
+        model: "I wish I could speak Japanese. / If only I spoke Japanese!",
+        patterns: [/could speak japanese|spoke japanese/i]
+      },
+      {
+        prompt: "The neighbors play loud music after midnight, and nobody in our house can sleep.",
+        model: "I wish the neighbors wouldn't play loud music after midnight. / If only they would turn it down!",
+        patterns: [/wouldn['’]?t play|would not play|would stop playing|would turn/i]
+      },
+      {
+        prompt: "Liam didn't wear a warm coat in the snow, and he caught a bad cold.",
+        model: "Liam wishes he had worn a warm coat in the snow. / If only he had dressed warmly!",
+        patterns: [/had worn|had brought|had put on/i]
+      },
+      {
+        prompt: "I have too much homework tonight, so I can't go to my cousin's birthday dinner.",
+        model: "I wish I didn't have so much homework tonight. / If only I had less homework!",
+        patterns: [/didn['’]?t have|did not have|had less homework|could go/i]
+      }
+    ];
+
+    /* Activity 6: Reading Comprehension Questions */
+    const readingQuestions = [
+      {
+        q: "1. Why does Robert dislike the noise of the river?",
+        options: [
+          "A. It reminds him of his home",
+          "B. It hides sounds he needs to hear",
+          "C. It keeps Pilar from sleeping",
+          "D. It frightens the horses"
+        ],
+        correct: 1,
+        explanation: "The first paragraph explicitly states: 'He did not like the noise. It covered the sounds he needed to hear.'"
+      },
+      {
+        q: "2. What does Pilar mean when she says, “Fear is not a crime. It is only a weight”?",
+        options: [
+          "A. Fear should be punished",
+          "B. Heavy equipment slowed the others down",
+          "C. Fear is a burden people carry, not a reason for blame",
+          "D. Fear makes people stronger"
+        ],
+        correct: 2,
+        explanation: "Pilar defends the men who left by explaining that fear is a heavy emotional burden rather than a moral offense."
+      },
+      {
+        q: "3. Robert thinks, “wishing was a thing for other men in other places.” What does this reveal about his attitude?",
+        options: [
+          "A. He believes wishes usually come true",
+          "B. He is jealous of other men",
+          "C. He enjoys imagining a different life",
+          "D. He knows he must face reality and act instead of dreaming"
+        ],
+        correct: 3,
+        explanation: "In a dangerous wartime mission, Robert recognizes he cannot afford idle daydreaming and must focus on duty."
+      },
+      {
+        q: "4. Which sentence expresses regret about a past event?",
+        options: [
+          "A. “If only the others had not left in the night.”",
+          "B. “If he comes.”",
+          "C. “I wish I could say I was not afraid too.”",
+          "D. “The old man will come at dawn.”"
+        ],
+        correct: 0,
+        explanation: "'If only + Past Perfect (had not left)' expresses a regret about something that already happened in the past."
+      },
+      {
+        q: "5. How does the bird singing at the end contribute to the passage?",
+        options: [
+          "A. It warns Robert that soldiers are near",
+          "B. It contrasts peaceful nature with the tension of the mission",
+          "C. It shows that Robert has changed his plan",
+          "D. It proves the danger has passed"
+        ],
+        correct: 1,
+        explanation: "The bird singing 'as if nothing in the world had changed' creates dramatic contrast between serene nature and the imminent explosion."
+      },
+      {
+        q: "6. Which conclusion about Robert is best supported by the passage?",
+        options: [
+          "A. He is reckless and ignores danger",
+          "B. He is ready to abandon the mission",
+          "C. He trusts everyone completely",
+          "D. He is afraid but honest, and he is determined to do the job well"
+        ],
+        correct: 3,
+        explanation: "Robert admits his fear honestly ('I wish I could say I was not afraid too') yet carefully checks the wire because 'there would be no second chance.'"
+      }
+    ];
+
+    /* Activity 8: 8 Complex Sentences Using Wish & If Only Across Different Tenses */
+    const complexSentences = [
+      {
+        tense: "Past Perfect (Past Regret)",
+        sentence: "If only we had checked the weather forecast before setting off on our mountain expedition."
+      },
+      {
+        tense: "Past Simple (Present Unreal State)",
+        sentence: "I honestly wish I knew how to respond when people ask me difficult questions during interviews."
+      },
+      {
+        tense: "Would + Infinitive (Annoying Habit)",
+        sentence: "My classmates wish the auditorium air conditioner would stop making that loud rattling noise during exams."
+      },
+      {
+        tense: "Could + Infinitive (Present Ability)",
+        sentence: "If only marine biologists could explore the deepest ocean trenches without risking their lives underwater."
+      },
+      {
+        tense: "Past Perfect Negative (Missed Opportunity)",
+        sentence: "Elena deeply wishes she hadn't turned down the scholarship opportunity to study abroad last semester."
+      },
+      {
+        tense: "Past Continuous (Present Ongoing Action)",
+        sentence: "Right now I wish I were sitting on a quiet beach instead of revising irregular grammar rules."
+      },
+      {
+        tense: "Could Have + Past Participle (Past Possibility)",
+        sentence: "If only the rescue team could have reached the stranded hikers before the blizzard grew stronger."
+      },
+      {
+        tense: "Past Subjunctive 'Were' (Hypothetical Identity)",
+        sentence: "Many young writers wish they were disciplined enough to draft a thousand words every single morning."
+      }
+    ];
+
+    /* =========================================================================
+       INITIALIZATION
+    ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Set default date to today if empty
+      const dateInput = document.getElementById('student-date');
+      if (dateInput && !dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+      }
+      syncStudentMeta();
+
+      // Build dynamic sections
+      renderCornellRows();
+      renderActivity4Items();
+      initActivity5Puzzle();
+      renderActivity6Questions();
+      initActivity8Sentences();
+      updateProgressUI();
+    });
+
+    /* =========================================================================
+       THEME TOGGLE & NON-BLOCKING TOASTS
+    ========================================================================= */
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const isDark = htmlEl.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+
+      if (isDark) {
+        icon.className = 'fa-solid fa-sun';
+        label.textContent = 'Light Mode';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+        label.textContent = 'Dark Mode';
+      }
+    }
+
+    let toastTimeout = null;
+    function showToast(message, type = 'info') {
+      const banner = document.getElementById('toast-banner');
+      const text = document.getElementById('toast-text');
+      const icon = document.getElementById('toast-icon');
+
+      text.textContent = message;
+      if (type === 'success') {
+        icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+      } else if (type === 'warning') {
+        icon.className = 'fa-solid fa-triangle-exclamation text-amber-400 text-lg';
+      } else {
+        icon.className = 'fa-solid fa-circle-info text-sky-400 text-lg';
+      }
+
+      banner.classList.remove('hidden');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 3600);
+    }
+
+    /* =========================================================================
+       NAVIGATION (ALWAYS SCROLLS TO TOP OF PAGE)
+    ========================================================================= */
+    function goToSection(index) {
+      state.currentSection = index;
+
+      // Hide all sections
+      document.querySelectorAll('.section-panel').forEach(sec => sec.classList.add('hidden'));
+
+      // Show target section
+      const targetId = index === 9 ? 'section-results' : `section-${index}`;
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      // Update header step label & active nav pill
+      document.getElementById('current-step-label').textContent = sectionTitles[index] || '';
+      document.querySelectorAll('.nav-pill').forEach(btn => {
+        const navIdx = Number(btn.getAttribute('data-nav'));
+        if (navIdx === index) {
+          btn.className = 'nav-pill px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition bg-sky-600 text-white shadow-sm';
+        } else if (navIdx >= 1 && navIdx <= 8 && state.checked[navIdx]) {
+          btn.className = 'nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800';
+        } else if (navIdx === 9) {
+          btn.className = 'nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300';
+        } else {
+          btn.className = 'nav-pill px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+        }
+      });
+
+      // Scroll to top of page immediately & smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function syncStudentMeta() {
+      const nameVal = document.getElementById('student-name').value.trim() || 'Student';
+      const dateVal = document.getElementById('student-date').value || 'Not Selected';
+      document.querySelectorAll('.mirror-student-name').forEach(el => el.textContent = nameVal);
+      document.querySelectorAll('.mirror-student-date').forEach(el => el.textContent = dateVal);
+    }
+
+    function updateProgressUI() {
+      const checkedCount = Object.values(state.checked).filter(Boolean).length;
+      const pct = Math.round((checkedCount / 8) * 100);
+      document.getElementById('progress-label').textContent = `Overall Worksheet Progress: ${pct}% (${checkedCount}/8 Activities Checked)`;
+      document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+
+      for (let i = 1; i <= 8; i++) {
+        const badge = document.getElementById(`status-badge-${i}`);
+        if (badge && state.checked[i]) {
+          badge.textContent = `Checked • ${state.scores[i]}%`;
+          badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300';
+        }
+      }
+      goToSection(state.currentSection);
+    }
+
+    /* =========================================================================
+       MEDIA FALLBACK HANDLER (If Image1, Image2, or Image3 aren't in folder yet)
+    ========================================================================= */
+    function handleMediaFallback(imgEl, baseName) {
+      const tried = imgEl.dataset.tried || '';
+      if (!tried.includes('png')) {
+        imgEl.dataset.tried = tried + 'png,';
+        imgEl.src = `${baseName}.png`;
+        return;
+      }
+      if (!tried.includes('webp')) {
+        imgEl.dataset.tried = tried + 'webp,';
+        imgEl.src = `${baseName}.webp`;
+        return;
+      }
+
+      // Generate clean, informative SVG data URI fallback so layout never breaks
+      const svgMap = {
+        Image1: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#0284c7"/>
+              <stop offset="50%" stop-color="#4f46e5"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="460" fill="url(#g1)" rx="24"/>
+          <circle cx="1050" cy="90" r="140" fill="rgba(255,255,255,0.08)"/>
+          <circle cx="140" cy="390" r="180" fill="rgba(56,189,248,0.12)"/>
+          <text x="600" y="165" fill="#ffffff" font-family="Inter, sans-serif" font-size="44" font-weight="800" text-anchor="middle">Mr. Rocha’s English Class</text>
+          <text x="600" y="225" fill="#7dd3fc" font-family="Inter, sans-serif" font-size="34" font-weight="700" text-anchor="middle">Mastering “Wish” &amp; “If Only” (Grade 10 • B2)</text>
+          <text x="600" y="295" fill="#e2e8f0" font-family="Inter, sans-serif" font-size="20" text-anchor="middle">Place Image1.jpg (or Image1.png) in the same folder to display your custom banner image.</text>
+        </svg>`,
+        Image2: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520">
+          <rect width="1200" height="520" fill="#1e293b" rx="20"/>
+          <rect x="40" y="40" width="1120" height="440" fill="#0f172a" stroke="#38bdf8" stroke-width="3" rx="16"/>
+          <text x="600" y="110" fill="#38bdf8" font-family="Inter, sans-serif" font-size="30" font-weight="800" text-anchor="middle">Story Reading Visual (Image2)</text>
+          <text x="600" y="170" fill="#f8fafc" font-family="Inter, sans-serif" font-size="22" text-anchor="middle">“Yesterday, Leo rushed out of the house without checking his backpack.</text>
+          <text x="600" y="210" fill="#f8fafc" font-family="Inter, sans-serif" font-size="22" text-anchor="middle">When he arrived at the science fair, he realized his prototype notes were on his desk.</text>
+          <text x="600" y="250" fill="#f8fafc" font-family="Inter, sans-serif" font-size="22" text-anchor="middle">‘I wish I had double-checked my bag this morning,’ he sighed. ‘If only I weren't always in a hurry!’</text>
+          <text x="600" y="290" fill="#f8fafc" font-family="Inter, sans-serif" font-size="22" text-anchor="middle">Fortunately, his lab partner Maya had digitized their charts, saving their presentation.”</text>
+          <text x="600" y="385" fill="#94a3b8" font-family="Inter, sans-serif" font-size="18" text-anchor="middle">(Fallback story displayed — place Image2.jpg in the same folder to load your story image)</text>
+        </svg>`
+      };
+
+      if (svgMap[baseName]) {
+        imgEl.onerror = null;
+        imgEl.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMap[baseName]);
+      }
+    }
+
+    function countWords(str) {
+      const cleaned = str.trim();
+      return cleaned ? cleaned.split(/\s+/).length : 0;
+    }
+
+    function updateWordCount(inputId, counterId) {
+      const words = countWords(document.getElementById(inputId).value);
+      document.getElementById(counterId).textContent = `${words} word${words === 1 ? '' : 's'}`;
+    }
+
+    /* =========================================================================
+       ACTIVITY 1: CHECK ANSWERS & LOCK
+    ========================================================================= */
+    function checkActivity1() {
+      if (state.checked[1]) return;
+      const input = document.getElementById('act1-input');
+      const text = input.value.trim();
+      const words = countWords(text);
+      const hasGrammar = /\b(wish|wishes|wished|if only)\b/i.test(text);
+
+      let score = 0;
+      if (words === 0) {
+        score = 0;
+      } else if (words < 12) {
+        score = 45;
+      } else if (words < 25) {
+        score = hasGrammar ? 80 : 65;
+      } else {
+        score = hasGrammar ? 100 : 85;
+      }
+
+      state.checked[1] = true;
+      state.scores[1] = score;
+      state.details[1] = `${words} words written; target grammar used: ${hasGrammar ? 'Yes' : 'No'}.`;
+
+      // Lock field
+      input.disabled = true;
+      input.classList.add('locked-field', score >= 70 ? 'answer-correct' : 'answer-incorrect');
+      document.getElementById('check-btn-1').disabled = true;
+      document.getElementById('check-btn-1').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const fb = document.getElementById('act1-feedback');
+      fb.classList.remove('hidden');
+      fb.className = `mt-5 p-4 rounded-2xl border ${score >= 70
+        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200'
+        : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200'}`;
+      fb.innerHTML = `
+        <div class="font-bold text-base mb-1">Activity 1 Score: ${score}% ${score >= 70 ? '— Great Reflection!' : '— Needs More Detail'}</div>
+        <p class="text-sm">You wrote <strong>${words} words</strong>. ${hasGrammar ? 'Excellent job incorporating <em>wish / if only</em> into your response to Mr. Rocha!' : 'Tip: Try to include <em>wish</em> or <em>if only</em> when reflecting on characters’ choices in videos.'}</p>
+        <p class="text-xs mt-2 opacity-90"><strong>Model Example:</strong> "Dear Mr. Rocha, the video showed how small decisions affect our future. I wish the main character had listened to the advice earlier; if only people paused to think before acting!"</p>
+      `;
+
+      updateProgressUI();
+      showToast(`Activity 1 checked & locked (${score}%).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 2: CHECK ANSWERS & LOCK
+    ========================================================================= */
+    function checkActivity2() {
+      if (state.checked[2]) return;
+      const input = document.getElementById('act2-input');
+      const text = input.value.trim();
+      const words = countWords(text);
+      const hasConnectors = /\b(because|however|although|therefore|finally|after|when|wish|if only|realized|decided)\b/i.test(text);
+
+      let score = 0;
+      if (words === 0) {
+        score = 0;
+      } else if (words < 15) {
+        score = 50;
+      } else if (words < 30) {
+        score = hasConnectors ? 85 : 70;
+      } else {
+        score = hasConnectors ? 100 : 88;
+      }
+
+      state.checked[2] = true;
+      state.scores[2] = score;
+      state.details[2] = `${words} words summary; cohesive connectors used: ${hasConnectors ? 'Yes' : 'No'}.`;
+
+      input.disabled = true;
+      input.classList.add('locked-field', score >= 70 ? 'answer-correct' : 'answer-incorrect');
+      document.getElementById('check-btn-2').disabled = true;
+      document.getElementById('check-btn-2').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const fb = document.getElementById('act2-feedback');
+      fb.classList.remove('hidden');
+      fb.className = `mt-5 p-4 rounded-2xl border ${score >= 70
+        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200'
+        : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200'}`;
+      fb.innerHTML = `
+        <div class="font-bold text-base mb-1">Activity 2 Score: ${score}%</div>
+        <p class="text-sm">Summary length: <strong>${words} words</strong>. ${hasConnectors ? 'Strong use of narrative connectors to summarize the sequence of events.' : 'Tip: Use B2 linking words (<em>however, consequently, although</em>) to connect key plot points smoothly.'}</p>
+      `;
+
+      updateProgressUI();
+      showToast(`Activity 2 checked & locked (${score}%).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 3: CORNELL METHOD NOTETAKING (7 QUESTIONS + ~80-WORD SUMMARY)
+    ========================================================================= */
+    function renderCornellRows() {
+      const container = document.getElementById('cornell-rows-container');
+      container.innerHTML = cornellQuestions.map((item, idx) => `
+        <div class="grid grid-cols-1 md:grid-cols-12 bg-white dark:bg-slate-900">
+          <div class="md:col-span-5 p-4 sm:p-5 md:border-r-2 border-slate-300 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col justify-center">
+            <p class="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 leading-snug">
+              ${item.q}
+            </p>
+          </div>
+          <div class="md:col-span-7 p-4 sm:p-5">
+            <textarea
+              id="cornell-q-${idx}"
+              rows="2"
+              placeholder="Write your B2 note & example here..."
+              class="shiny-blue-box w-full rounded-xl p-3 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm leading-relaxed"
+            ></textarea>
+            <div id="cornell-q-fb-${idx}" class="hidden mt-2 text-xs font-medium p-2.5 rounded-lg"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateCornellSummaryCounter() {
+      const words = countWords(document.getElementById('cornell-summary').value);
+      const badge = document.getElementById('cornell-wordcount');
+      badge.textContent = `${words} / ~80 words`;
+      if (words >= 65 && words <= 100) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-400 text-emerald-800 dark:text-emerald-200';
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200';
+      }
+    }
+
+    function checkActivity3() {
+      if (state.checked[3]) return;
+      let earnedPoints = 0;
+      const totalPoints = 10; // 7 questions (1 pt each) + Summary (3 pts)
+      let correctQuestions = 0;
+
+      cornellQuestions.forEach((item, idx) => {
+        const box = document.getElementById(`cornell-q-${idx}`);
+        const fb = document.getElementById(`cornell-q-fb-${idx}`);
+        const val = box.value.trim().toLowerCase();
+
+        const matched = val.length >= 10 && item.keywords.some(kw => val.includes(kw));
+        if (matched) {
+          earnedPoints += 1;
+          correctQuestions++;
+          box.classList.add('locked-field', 'answer-correct');
+          fb.className = 'mt-2 text-xs font-medium p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700';
+          fb.innerHTML = `<i class="fa-solid fa-check mr-1"></i> <strong>Correct!</strong> Model Note: ${item.model}`;
+        } else {
+          box.classList.add('locked-field', 'answer-incorrect');
+          fb.className = 'mt-2 text-xs font-medium p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700';
+          fb.innerHTML = `<i class="fa-solid fa-xmark mr-1"></i> <strong>Review Model Note:</strong> ${item.model}`;
+        }
+        box.disabled = true;
+        fb.classList.remove('hidden');
+      });
+
+      // Evaluate ~80-word summary
+      const summaryBox = document.getElementById('cornell-summary');
+      const summaryWords = countWords(summaryBox.value);
+      const summaryFb = document.getElementById('cornell-summary-feedback');
+      let summaryPoints = 0;
+
+      if (summaryWords >= 65 && summaryWords <= 105) {
+        summaryPoints = 3;
+        summaryBox.classList.add('locked-field', 'answer-correct');
+        summaryFb.className = 'mt-3 text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300';
+        summaryFb.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Excellent summary length (${summaryWords} words — right on target for ~80 words!).`;
+      } else if (summaryWords >= 35) {
+        summaryPoints = 2;
+        summaryBox.classList.add('locked-field', 'answer-correct');
+        summaryFb.className = 'mt-3 text-xs sm:text-sm font-semibold text-amber-700 dark:text-amber-300';
+        summaryFb.innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> Good effort (${summaryWords} words). Aim closer to 75–85 words for optimal Cornell synthesis.`;
+      } else {
+        summaryPoints = summaryWords > 0 ? 1 : 0;
+        summaryBox.classList.add('locked-field', 'answer-incorrect');
+        summaryFb.className = 'mt-3 text-xs sm:text-sm font-semibold text-rose-700 dark:text-rose-300';
+        summaryFb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Too brief (${summaryWords} words). A B2 Cornell summary should be around 80 words.`;
+      }
+      summaryBox.disabled = true;
+      summaryFb.classList.remove('hidden');
+
+      earnedPoints += summaryPoints;
+      const finalScore = Math.round((earnedPoints / totalPoints) * 100);
+
+      state.checked[3] = true;
+      state.scores[3] = finalScore;
+      state.details[3] = `${correctQuestions}/7 Cornell questions accurate; summary: ${summaryWords} words.`;
+
+      document.getElementById('check-btn-3').disabled = true;
+      document.getElementById('check-btn-3').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const mainFb = document.getElementById('act3-feedback');
+      mainFb.classList.remove('hidden');
+      mainFb.className = 'mt-5 p-4 rounded-2xl border bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-900 dark:text-sky-200';
+      mainFb.innerHTML = `<strong>Cornell Notes Evaluated (${finalScore}%):</strong> You answered ${correctQuestions}/7 cue questions accurately and wrote a ${summaryWords}-word summary.`;
+
+      updateProgressUI();
+      showToast(`Activity 3 Cornell Notes checked (${finalScore}%).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 4: 15 COMPOUND SENTENCE REWRITES
+    ========================================================================= */
+    function renderActivity4Items() {
+      const container = document.getElementById('act4-items-container');
+      container.innerHTML = rewriteItems.map((item, idx) => `
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <div class="flex items-start gap-2.5">
+            <span class="w-7 h-7 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+            <p class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">${item.prompt}</p>
+          </div>
+          <input
+            type="text"
+            id="act4-q-${idx}"
+            placeholder="Rewrite using 'I wish...' or 'If only...'"
+            class="shiny-blue-box w-full rounded-xl px-4 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm sm:text-base"
+          />
+          <div id="act4-fb-${idx}" class="hidden text-xs sm:text-sm font-medium p-2.5 rounded-xl"></div>
+        </div>
+      `).join('');
+    }
+
+    function checkActivity4() {
+      if (state.checked[4]) return;
+      let correctCount = 0;
+
+      rewriteItems.forEach((item, idx) => {
+        const input = document.getElementById(`act4-q-${idx}`);
+        const fb = document.getElementById(`act4-fb-${idx}`);
+        const val = input.value.trim();
+
+        const usesIntro = /\b(wish|wishes|if only)\b/i.test(val);
+        const matchesTense = item.patterns.some(rx => rx.test(val));
+        const isCorrect = usesIntro && matchesTense;
+
+        if (isCorrect) {
+          correctCount++;
+          input.classList.add('locked-field', 'answer-correct');
+          fb.className = 'text-xs sm:text-sm font-medium p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> <strong>Correct!</strong> Model answer: <em>${item.model}</em>`;
+        } else {
+          input.classList.add('locked-field', 'answer-incorrect');
+          fb.className = 'text-xs sm:text-sm font-medium p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> <strong>Incorrect.</strong> Correct structure: <em>${item.model}</em>`;
+        }
+        input.disabled = true;
+        fb.classList.remove('hidden');
+      });
+
+      const score = Math.round((correctCount / rewriteItems.length) * 100);
+      state.checked[4] = true;
+      state.scores[4] = score;
+      state.details[4] = `${correctCount} out of 15 compound regret sentences rewritten accurately.`;
+
+      document.getElementById('check-btn-4').disabled = true;
+      document.getElementById('check-btn-4').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const mainFb = document.getElementById('act4-feedback');
+      mainFb.classList.remove('hidden');
+      mainFb.className = 'mt-5 p-4 rounded-2xl border bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-900 dark:text-sky-200';
+      mainFb.innerHTML = `<strong>Activity 4 Complete:</strong> You scored <strong>${correctCount}/15 (${score}%)</strong> on the <em>wish / if only</em> transformations.`;
+
+      updateProgressUI();
+      showToast(`Activity 4 checked: ${correctCount}/15 correct (${score}%).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 5: 25-SQUARE SHUFFLED IMAGE3 PUZZLE + TIMER
+    ========================================================================= */
+    function initActivity5Puzzle() {
+      const testImg = new Image();
+      testImg.onload = () => {
+        state.puzzle.imageSrc = 'Image3.jpg';
+        document.getElementById('puzzle-target-preview').src = 'Image3.jpg';
+        setupPuzzlePieces();
+      };
+      testImg.onerror = () => {
+        const pngImg = new Image();
+        pngImg.onload = () => {
+          state.puzzle.imageSrc = 'Image3.png';
+          document.getElementById('puzzle-target-preview').src = 'Image3.png';
+          setupPuzzlePieces();
+        };
+        pngImg.onerror = () => {
+          // Generate vibrant educational graphic fallback so the 25-piece puzzle works seamlessly
+          const fallbackCanvas = document.createElement('canvas');
+          fallbackCanvas.width = 600;
+          fallbackCanvas.height = 600;
+          const ctx = fallbackCanvas.getContext('2d');
+
+          const grad = ctx.createLinearGradient(0, 0, 600, 600);
+          grad.addColorStop(0, '#0ea5e9');
+          grad.addColorStop(0.5, '#6366f1');
+          grad.addColorStop(1, '#ec4899');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 600, 600);
+
+          // Decorative geometric landmarks so students can visually solve all 25 squares easily
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(140, 140, 70, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#10b981';
+          ctx.beginPath();
+          ctx.moveTo(0, 600);
+          ctx.lineTo(240, 280);
+          ctx.lineTo(460, 600);
+          ctx.fill();
+
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.moveTo(220, 600);
+          ctx.lineTo(430, 230);
+          ctx.lineTo(600, 600);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 34px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('WISH / IF ONLY', 300, 340);
+          ctx.font = 'bold 22px Inter, sans-serif';
+          ctx.fillStyle = '#bae6fd';
+          ctx.fillText('MR. ROCHA’S CLASS (IMAGE 3)', 300, 380);
+
+          const dataUrl = fallbackCanvas.toDataURL('image/png');
+          state.puzzle.imageSrc = dataUrl;
+          document.getElementById('puzzle-target-preview').src = dataUrl;
+          setupPuzzlePieces();
+        };
+        pngImg.src = 'Image3.png';
+      };
+      testImg.src = 'Image3.jpg';
+    }
+
+    function setupPuzzlePieces() {
+      const pieces = Array.from({ length: 25 }, (_, i) => i);
+      // Fisher-Yates shuffle
+      for (let i = pieces.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+      }
+      state.puzzle.board = Array(25).fill(null);
+      state.puzzle.tray = pieces;
+      state.puzzle.selectedPiece = null;
+      renderPuzzle();
+    }
+
+    function createPieceElement(pieceId) {
+      const row = Math.floor(pieceId / 5);
+      const col = pieceId % 5;
+      const div = document.createElement('div');
+      div.className = 'puzzle-piece w-full h-full rounded-md shadow-sm border border-white/40';
+      div.draggable = !state.checked[5];
+      div.dataset.pieceId = pieceId;
+      div.style.backgroundImage = `url("${state.puzzle.imageSrc}")`;
+      div.style.backgroundSize = '500% 500%';
+      div.style.backgroundPosition = `${col * 25}% ${row * 25}%`;
+
+      if (state.puzzle.selectedPiece === pieceId) {
+        div.classList.add('puzzle-selected');
+      }
+
+      if (!state.checked[5]) {
+        div.addEventListener('dragstart', (e) => {
+          if (!state.puzzle.running) startPuzzleTimer();
+          e.dataTransfer.setData('text/plain', String(pieceId));
+        });
+        div.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!state.puzzle.running) startPuzzleTimer();
+          if (state.puzzle.selectedPiece === pieceId) {
+            state.puzzle.selectedPiece = null;
+          } else {
+            state.puzzle.selectedPiece = pieceId;
+          }
+          renderPuzzle();
+        });
+      }
+      return div;
+    }
+
+    function renderPuzzle() {
+      const boardEl = document.getElementById('puzzle-board');
+      const trayEl = document.getElementById('puzzle-tray');
+      boardEl.innerHTML = '';
+      trayEl.innerHTML = '';
+
+      let placedCount = 0;
+      for (let slot = 0; slot < 25; slot++) {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'puzzle-slot rounded-md bg-white/70 dark:bg-slate-900/70 border border-dashed border-slate-400 dark:border-slate-600 flex items-center justify-center overflow-hidden';
+        slotDiv.dataset.slot = slot;
+
+        const pieceId = state.puzzle.board[slot];
+        if (pieceId !== null) {
+          placedCount++;
+          const pieceEl = createPieceElement(pieceId);
+          if (state.checked[5]) {
+            pieceEl.style.outline = pieceId === slot ? '3px solid #10b981' : '3px solid #ef4444';
+          }
+          slotDiv.appendChild(pieceEl);
+        }
+
+        if (!state.checked[5]) {
+          slotDiv.addEventListener('dragover', (e) => e.preventDefault());
+          slotDiv.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const draggedId = Number(e.dataTransfer.getData('text/plain'));
+            placePieceInSlot(draggedId, slot);
+          });
+          slotDiv.addEventListener('click', () => {
+            if (state.puzzle.selectedPiece !== null) {
+              placePieceInSlot(state.puzzle.selectedPiece, slot);
+            }
+          });
+        }
+
+        boardEl.appendChild(slotDiv);
+      }
+
+      state.puzzle.tray.forEach(pieceId => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'aspect-square w-full';
+        wrapper.appendChild(createPieceElement(pieceId));
+        trayEl.appendChild(wrapper);
+      });
+
+      document.getElementById('puzzle-placed-count').textContent = `${placedCount} / 25 placed`;
+    }
+
+    function placePieceInSlot(pieceId, targetSlot) {
+      if (state.checked[5] || isNaN(pieceId)) return;
+      if (!state.puzzle.running) startPuzzleTimer();
+
+      const existingInTarget = state.puzzle.board[targetSlot];
+      const sourceSlot = state.puzzle.board.indexOf(pieceId);
+
+      // Remove piece from its old location
+      if (sourceSlot !== -1) {
+        state.puzzle.board[sourceSlot] = existingInTarget;
+      } else {
+        state.puzzle.tray = state.puzzle.tray.filter(id => id !== pieceId);
+        if (existingInTarget !== null) {
+          state.puzzle.tray.push(existingInTarget);
+        }
+      }
+
+      state.puzzle.board[targetSlot] = pieceId;
+      state.puzzle.selectedPiece = null;
+      renderPuzzle();
+    }
+
+    function handleDropToTray(e) {
+      e.preventDefault();
+      if (state.checked[5]) return;
+      const pieceId = Number(e.dataTransfer.getData('text/plain'));
+      const sourceSlot = state.puzzle.board.indexOf(pieceId);
+      if (sourceSlot !== -1) {
+        state.puzzle.board[sourceSlot] = null;
+        if (!state.puzzle.tray.includes(pieceId)) {
+          state.puzzle.tray.push(pieceId);
+        }
+        state.puzzle.selectedPiece = null;
+        renderPuzzle();
+      }
+    }
+
+    function startPuzzleTimer() {
+      if (state.puzzle.running || state.checked[5]) return;
+      state.puzzle.running = true;
+      document.getElementById('puzzle-start-btn').innerHTML = '<i class="fa-solid fa-clock"></i><span>Running...</span>';
+      state.puzzle.timerInterval = setInterval(() => {
+        state.puzzle.timerSeconds++;
+        const mins = String(Math.floor(state.puzzle.timerSeconds / 60)).padStart(2, '0');
+        const secs = String(state.puzzle.timerSeconds % 60).padStart(2, '0');
+        document.getElementById('puzzle-timer').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function restartPuzzle() {
+      if (state.checked[5]) {
+        showToast('Activity 5 is already checked and locked.', 'warning');
+        return;
+      }
+      clearInterval(state.puzzle.timerInterval);
+      state.puzzle.running = false;
+      state.puzzle.timerSeconds = 0;
+      document.getElementById('puzzle-timer').textContent = '00:00';
+      document.getElementById('puzzle-start-btn').innerHTML = '<i class="fa-solid fa-play"></i><span>Start</span>';
+      setupPuzzlePieces();
+      showToast('Puzzle reshuffled and timer reset!', 'info');
+    }
+
+    function checkActivity5() {
+      if (state.checked[5]) return;
+      clearInterval(state.puzzle.timerInterval);
+      state.puzzle.running = false;
+
+      let correctTiles = 0;
+      for (let i = 0; i < 25; i++) {
+        if (state.puzzle.board[i] === i) correctTiles++;
+      }
+
+      const score = Math.round((correctTiles / 25) * 100);
+      const timeStr = document.getElementById('puzzle-timer').textContent;
+
+      state.checked[5] = true;
+      state.scores[5] = score;
+      state.details[5] = `${correctTiles}/25 puzzle squares accurately placed in ${timeStr}.`;
+
+      document.getElementById('check-btn-5').disabled = true;
+      document.getElementById('check-btn-5').classList.add('opacity-50', 'cursor-not-allowed');
+      document.getElementById('puzzle-start-btn').disabled = true;
+      document.getElementById('puzzle-restart-btn').disabled = true;
+
+      renderPuzzle();
+
+      const fb = document.getElementById('act5-feedback');
+      fb.classList.remove('hidden');
+      fb.className = `mt-5 p-4 rounded-2xl border ${score >= 70
+        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200'
+        : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200'}`;
+      fb.innerHTML = `<strong>Puzzle Checked (${score}%):</strong> You placed <strong>${correctTiles} out of 25</strong> squares in their exact positions (Time: ${timeStr}). Green borders show correct squares; red borders show misplaced squares.`;
+
+      updateProgressUI();
+      showToast(`Activity 5 Puzzle checked (${correctTiles}/25 correct).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 6: READING COMPREHENSION ("THE BRIDGE")
+    ========================================================================= */
+    function renderActivity6Questions() {
+      const container = document.getElementById('act6-questions-container');
+      container.innerHTML = readingQuestions.map((item, qIdx) => `
+        <div id="act6-card-${qIdx}" class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-3">
+          <p class="font-bold text-slate-900 dark:text-white text-base">${item.q}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            ${item.options.map((opt, oIdx) => `
+              <label id="act6-opt-${qIdx}-${oIdx}" class="shiny-blue-box flex items-center gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 cursor-pointer hover:bg-sky-50 dark:hover:bg-slate-800 transition">
+                <input type="radio" name="act6-q-${qIdx}" value="${oIdx}" class="w-4 h-4 text-sky-600 focus:ring-sky-500" />
+                <span class="text-sm font-medium text-slate-800 dark:text-slate-200">${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+          <div id="act6-fb-${qIdx}" class="hidden text-xs sm:text-sm font-medium p-3 rounded-xl"></div>
+        </div>
+      `).join('');
+    }
+
+    function checkActivity6() {
+      if (state.checked[6]) return;
+      let correctCount = 0;
+
+      readingQuestions.forEach((item, qIdx) => {
+        const selected = document.querySelector(`input[name="act6-q-${qIdx}"]:checked`);
+        const userVal = selected ? Number(selected.value) : -1;
+        const fb = document.getElementById(`act6-fb-${qIdx}`);
+
+        // Disable all radios for this question
+        document.querySelectorAll(`input[name="act6-q-${qIdx}"]`).forEach((radio, oIdx) => {
+          radio.disabled = true;
+          const label = document.getElementById(`act6-opt-${qIdx}-${oIdx}`);
+          label.classList.add('locked-field');
+          if (oIdx === item.correct) {
+            label.classList.add('answer-correct');
+          } else if (oIdx === userVal && userVal !== item.correct) {
+            label.classList.add('answer-incorrect');
+          }
+        });
+
+        if (userVal === item.correct) {
+          correctCount++;
+          fb.className = 'text-xs sm:text-sm font-medium p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> <strong>Correct!</strong> ${item.explanation}`;
+        } else {
+          fb.className = 'text-xs sm:text-sm font-medium p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> <strong>Incorrect.</strong> Correct answer: <strong>${item.options[item.correct]}</strong>. ${item.explanation}`;
+        }
+        fb.classList.remove('hidden');
+      });
+
+      const score = Math.round((correctCount / readingQuestions.length) * 100);
+      state.checked[6] = true;
+      state.scores[6] = score;
+      state.details[6] = `${correctCount}/6 reading comprehension questions answered correctly.`;
+
+      document.getElementById('check-btn-6').disabled = true;
+      document.getElementById('check-btn-6').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const mainFb = document.getElementById('act6-feedback');
+      mainFb.classList.remove('hidden');
+      mainFb.className = 'mt-5 p-4 rounded-2xl border bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-900 dark:text-sky-200';
+      mainFb.innerHTML = `<strong>Reading Comprehension Score: ${correctCount}/6 (${score}%)</strong>`;
+
+      updateProgressUI();
+      showToast(`Activity 6 checked: ${correctCount}/6 correct (${score}%).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 7: LISTENING COMPREHENSION (VALERIE/KARLA, MICHAEL, DAVID)
+    ========================================================================= */
+    function checkActivity7() {
+      if (state.checked[7]) return;
+      const prompts = [
+        { id: 1, name: 'Karla (Audio1)', hint: 'Karla shares her perspective and reflects on what she wishes were different in her daily routine.' },
+        { id: 2, name: 'Michael (Audio2)', hint: 'Michael explains his viewpoint and expresses what he thinks could improve the situation.' },
+        { id: 3, name: 'David (Audio3)', hint: 'David expresses a heartfelt wish/regret using wish or if only structures.' }
+      ];
+
+      let totalScore = 0;
+      let completedSpeakers = 0;
+
+      prompts.forEach(p => {
+        const box = document.getElementById(`act7-input-${p.id}`);
+        const fb = document.getElementById(`act7-fb-${p.id}`);
+        const words = countWords(box.value);
+        let itemScore = 0;
+
+        if (words >= 10) {
+          itemScore = 100;
+          completedSpeakers++;
+          box.classList.add('locked-field', 'answer-correct');
+          fb.className = 'mt-2 text-xs font-medium p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700';
+          fb.innerHTML = `<i class="fa-solid fa-check mr-1"></i> <strong>Recorded (${words} words).</strong> Key focus: ${p.hint}`;
+        } else if (words > 0) {
+          itemScore = 60;
+          completedSpeakers++;
+          box.classList.add('locked-field', 'answer-correct');
+          fb.className = 'mt-2 text-xs font-medium p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> <strong>Brief summary (${words} words).</strong> Key focus: ${p.hint}`;
+        } else {
+          itemScore = 0;
+          box.classList.add('locked-field', 'answer-incorrect');
+          fb.className = 'mt-2 text-xs font-medium p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700';
+          fb.innerHTML = `<i class="fa-solid fa-xmark mr-1"></i> <strong>No summary entered.</strong> Key focus: ${p.hint}`;
+        }
+        box.disabled = true;
+        fb.classList.remove('hidden');
+        totalScore += itemScore;
+      });
+
+      const avgScore = Math.round(totalScore / 3);
+      state.checked[7] = true;
+      state.scores[7] = avgScore;
+      state.details[7] = `${completedSpeakers}/3 speaker audio summaries completed.`;
+
+      document.getElementById('check-btn-7').disabled = true;
+      document.getElementById('check-btn-7').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const mainFb = document.getElementById('act7-feedback');
+      mainFb.classList.remove('hidden');
+      mainFb.className = 'mt-5 p-4 rounded-2xl border bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-900 dark:text-sky-200';
+      mainFb.innerHTML = `<strong>Listening Activity Checked (${avgScore}%):</strong> All 3 audio responses have been evaluated and locked.`;
+
+      updateProgressUI();
+      showToast(`Activity 7 Listening checked (${avgScore}%).`, 'success');
+    }
+
+    /* =========================================================================
+       ACTIVITY 8: 8 COMPLEX SCRAMBLED SENTENCES + SPEECH AUDIO
+    ========================================================================= */
+    function initActivity8Sentences() {
+      state.sentenceState = complexSentences.map((item, idx) => {
+        const words = item.sentence.split(' ');
+        const shuffled = words.map((w, i) => ({ id: `${idx}-${i}`, text: w }));
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return {
+          bank: shuffled,
+          built: []
+        };
+      });
+      renderActivity8();
+    }
+
+    function speakSentence(idx) {
+      const text = complexSentences[idx].sentence;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 0.92;
+        window.speechSynthesis.speak(utter);
+        showToast(`Reading Sentence ${idx + 1} aloud...`, 'info');
+      } else {
+        showToast('Text-to-speech is not supported in this browser.', 'warning');
+      }
+    }
+
+    function renderActivity8() {
+      const container = document.getElementById('act8-sentences-container');
+      container.innerHTML = complexSentences.map((item, sIdx) => {
+        const sObj = state.sentenceState[sIdx];
+        return `
+          <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">${sIdx + 1}</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">${item.tense}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="speakSentence(${sIdx})" class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-volume-high"></i>
+                  <span>Listen Audio</span>
+                </button>
+                ${!state.checked[8] ? `
+                  <button type="button" onclick="resetSentence(${sIdx})" class="px-3 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-xs transition">
+                    Reset
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Dropzone for Constructed Sentence (Shiny Blue Border) -->
+            <div
+              id="act8-drop-${sIdx}"
+              ondragover="event.preventDefault()"
+              ondrop="handleSentenceDrop(event, ${sIdx}, 'built')"
+              class="shiny-blue-box min-h-[58px] p-3 rounded-2xl bg-white dark:bg-slate-900 flex flex-wrap items-center gap-2"
+            >
+              ${sObj.built.length === 0
+                ? `<span class="text-xs text-slate-400 italic select-none">Drag or tap word tiles below to build Sentence ${sIdx + 1}...</span>`
+                : sObj.built.map(chip => `
+                    <button
+                      type="button"
+                      draggable="${!state.checked[8]}"
+                      ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify({sIdx:${sIdx}, id:'${chip.id}', from:'built'}))"
+                      onclick="moveWordChip(${sIdx}, '${chip.id}', 'built')"
+                      class="word-chip px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm shadow-sm ${state.checked[8] ? 'locked-field' : ''}"
+                    >${chip.text}</button>
+                  `).join('')
+              }
+            </div>
+
+            <!-- Shuffled Word Bank -->
+            <div
+              ondragover="event.preventDefault()"
+              ondrop="handleSentenceDrop(event, ${sIdx}, 'bank')"
+              class="min-h-[46px] p-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-900/50 flex flex-wrap items-center gap-2"
+            >
+              ${sObj.bank.map(chip => `
+                <button
+                  type="button"
+                  draggable="${!state.checked[8]}"
+                  ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify({sIdx:${sIdx}, id:'${chip.id}', from:'bank'}))"
+                  onclick="moveWordChip(${sIdx}, '${chip.id}', 'bank')"
+                  class="word-chip px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100 font-medium text-sm shadow-sm ${state.checked[8] ? 'locked-field' : ''}"
+                >${chip.text}</button>
+              `).join('')}
+            </div>
+
+            <div id="act8-fb-${sIdx}" class="hidden text-xs sm:text-sm font-medium p-3 rounded-xl"></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function moveWordChip(sIdx, chipId, fromArea) {
+      if (state.checked[8]) return;
+      const sObj = state.sentenceState[sIdx];
+      if (fromArea === 'bank') {
+        const idx = sObj.bank.findIndex(c => c.id === chipId);
+        if (idx !== -1) {
+          const [chip] = sObj.bank.splice(idx, 1);
+          sObj.built.push(chip);
+        }
+      } else {
+        const idx = sObj.built.findIndex(c => c.id === chipId);
+        if (idx !== -1) {
+          const [chip] = sObj.built.splice(idx, 1);
+          sObj.bank.push(chip);
+        }
+      }
+      renderActivity8();
+    }
+
+    function handleSentenceDrop(e, targetSIdx, targetArea) {
+      e.preventDefault();
+      if (state.checked[8]) return;
+      try {
+        const payload = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (payload.sIdx !== targetSIdx) return;
+        if (payload.from !== targetArea) {
+          moveWordChip(targetSIdx, payload.id, payload.from);
+        }
+      } catch (_) {}
+    }
+
+    function resetSentence(sIdx) {
+      if (state.checked[8]) return;
+      const sObj = state.sentenceState[sIdx];
+      sObj.bank.push(...sObj.built);
+      sObj.built = [];
+      renderActivity8();
+    }
+
+    function checkActivity8() {
+      if (state.checked[8]) return;
+      let correctCount = 0;
+
+      // First mark checked so re-render locks buttons cleanly
+      state.checked[8] = true;
+      renderActivity8();
+
+      complexSentences.forEach((item, sIdx) => {
+        const userSentence = state.sentenceState[sIdx].built.map(c => c.text).join(' ');
+        const dropZone = document.getElementById(`act8-drop-${sIdx}`);
+        const fb = document.getElementById(`act8-fb-${sIdx}`);
+
+        if (userSentence === item.sentence) {
+          correctCount++;
+          dropZone.classList.add('answer-correct');
+          fb.className = 'text-xs sm:text-sm font-medium p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> <strong>Perfect Order!</strong>`;
+        } else {
+          dropZone.classList.add('answer-incorrect');
+          fb.className = 'text-xs sm:text-sm font-medium p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700';
+          fb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> <strong>Correct Sentence:</strong> <em>${item.sentence}</em>`;
+        }
+        fb.classList.remove('hidden');
+      });
+
+      const score = Math.round((correctCount / complexSentences.length) * 100);
+      state.scores[8] = score;
+      state.details[8] = `${correctCount}/8 complex sentences reconstructed in exact word order.`;
+
+      document.getElementById('check-btn-8').disabled = true;
+      document.getElementById('check-btn-8').classList.add('opacity-50', 'cursor-not-allowed');
+
+      const mainFb = document.getElementById('act8-feedback');
+      mainFb.classList.remove('hidden');
+      mainFb.className = 'mt-5 p-4 rounded-2xl border bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-900 dark:text-sky-200';
+      mainFb.innerHTML = `<strong>Sentence Ordering Checked: ${correctCount}/8 (${score}%)</strong>`;
+
+      updateProgressUI();
+      showToast(`Activity 8 checked: ${correctCount}/8 sentences correct (${score}%).`, 'success');
+    }
+
+    /* =========================================================================
+       SUBMIT & GENERATE COLORFUL CHARTS + 8 TAILORED RECOMMENDATIONS
+    ========================================================================= */
+    function submitAndShowResults() {
+      // Populate Student Metadata
+      const studentName = document.getElementById('student-name').value.trim() || 'Guest Student';
+      const studentDate = document.getElementById('student-date').value || new Date().toISOString().split('T')[0];
+      document.getElementById('res-student-name').textContent = studentName;
+      document.getElementById('res-student-date').textContent = studentDate;
+
+      // Calculate Overall Score across all 8 activities (even if some are unchecked)
+      const activityLabels = [
+        { id: 1, name: "Act 1: Video Reflection", short: "Act 1", color: "from-sky-400 to-blue-600", hex: "#0284c7" },
+        { id: 2, name: "Act 2: Story Summary", short: "Act 2", color: "from-indigo-400 to-purple-600", hex: "#6366f1" },
+        { id: 3, name: "Act 3: Cornell Notes", short: "Act 3", color: "from-fuchsia-400 to-pink-600", hex: "#d946ef" },
+        { id: 4, name: "Act 4: 15 Regret Rewrites", short: "Act 4", color: "from-emerald-400 to-teal-600", hex: "#10b981" },
+        { id: 5, name: "Act 5: 25-Piece Puzzle", short: "Act 5", color: "from-amber-400 to-orange-600", hex: "#f59e0b" },
+        { id: 6, name: "Act 6: Reading 'The Bridge'", short: "Act 6", color: "from-rose-400 to-red-600", hex: "#f43f5e" },
+        { id: 7, name: "Act 7: Listening Summaries", short: "Act 7", color: "from-cyan-400 to-teal-600", hex: "#06b6d4" },
+        { id: 8, name: "Act 8: Complex Syntax", short: "Act 8", color: "from-violet-400 to-indigo-600", hex: "#8b5cf6" }
+      ];
+
+      let totalSum = 0;
+      let checkedCount = 0;
+      let bestAct = activityLabels[0];
+      let lowestAct = activityLabels[0];
+
+      activityLabels.forEach(act => {
+        const s = state.scores[act.id] || 0;
+        totalSum += s;
+        if (state.checked[act.id]) checkedCount++;
+        if (s >= (state.scores[bestAct.id] || 0)) bestAct = act;
+        if (s <= (state.scores[lowestAct.id] || 0)) lowestAct = act;
+      });
+
+      const overallPct = Math.round(totalSum / 8);
+
+      // Animate Donut Chart
+      const circumference = 314.16;
+      const offset = circumference - (overallPct / 100) * circumference;
+      document.getElementById('overall-donut-circle').style.strokeDashoffset = offset;
+      document.getElementById('res-overall-percent').textContent = `${overallPct}%`;
+      document.getElementById('res-completed-count').textContent = `${checkedCount} / 8`;
+      document.getElementById('res-strongest-area').textContent = `${bestAct.short} (${state.scores[bestAct.id]}%)`;
+      document.getElementById('res-focus-area').textContent = `${lowestAct.short} (${state.scores[lowestAct.id]}%)`;
+
+      // Grade & Feedback
+      let badge = "Developing B2";
+      let headline = "Good Start — Keep Practicing Your Regret Structures!";
+      let feedbackText = `${studentName}, you have completed ${checkedCount} of 8 activities with an overall score of ${overallPct}%. `;
+
+      if (overallPct >= 90) {
+        badge = "Distinction • Mastery";
+        headline = "Outstanding B2 Mastery of Wish & If Only!";
+        feedbackText += "Your command of past regrets, present hypotheticals, and reading/listening synthesis is exemplary. Keep applying these structures in your essays and speaking.";
+      } else if (overallPct >= 75) {
+        badge = "Proficient • B2 Solid";
+        headline = "Strong Performance Across Grammar & Comprehension!";
+        feedbackText += "You demonstrate solid understanding of tense backshifting with 'wish' and 'if only'. Review the targeted recommendations below to turn minor errors into 100% accuracy.";
+      } else if (overallPct >= 50) {
+        badge = "Progressing • B2";
+        headline = "Solid Effort — Focus on Tense Backshifting & Completion";
+        feedbackText += "You have grasped the core meaning of expressing wishes and regrets. Be sure to complete any remaining activities and pay close attention to Past Perfect ('had + V3') for past regrets.";
+      } else {
+        badge = "In Progress";
+        headline = "Worksheet Partially Completed — Continue Practicing!";
+        feedbackText += "Remember that you can return to any unchecked activity, click 'Check Answers' to lock in your score, and review the grammar guide in Activity 4.";
+      }
+
+      document.getElementById('res-grade-badge').textContent = badge;
+      document.getElementById('res-headline').textContent = headline;
+      document.getElementById('res-overall-feedback').textContent = feedbackText;
+
+      // Render Chart 1: Colorful Activity-by-Activity Horizontal Bar Graph
+      const barsContainer = document.getElementById('res-activity-bars');
+      barsContainer.innerHTML = activityLabels.map(act => {
+        const s = state.scores[act.id] || 0;
+        const isChecked = state.checked[act.id];
+        return `
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700 dark:text-slate-200">${act.name}</span>
+              <span class="${isChecked ? 'text-slate-900 dark:text-white' : 'text-slate-400'}">${s}% ${isChecked ? '' : '(Unchecked)'}</span>
+            </div>
+            <div class="w-full h-3.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r ${act.color} rounded-full transition-all duration-700" style="width: ${Math.max(s, 4)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Render Chart 2: Colorful Skill Domain Vertical Column Chart
+      const domains = [
+        {
+          label: "Grammar & Syntax",
+          score: Math.round(((state.scores[4] || 0) + (state.scores[8] || 0)) / 2),
+          gradient: "from-emerald-400 to-teal-600"
+        },
+        {
+          label: "Reading & Listening",
+          score: Math.round(((state.scores[6] || 0) + (state.scores[7] || 0)) / 2),
+          gradient: "from-sky-400 to-indigo-600"
+        },
+        {
+          label: "Writing & Cornell",
+          score: Math.round(((state.scores[1] || 0) + (state.scores[2] || 0) + (state.scores[3] || 0)) / 3),
+          gradient: "from-fuchsia-400 to-purple-600"
+        },
+        {
+          label: "Visual Spatial",
+          score: state.scores[5] || 0,
+          gradient: "from-amber-400 to-orange-600"
+        }
+      ];
+
+      document.getElementById('res-skill-columns').innerHTML = domains.map(d => `
+        <div class="flex flex-col items-center justify-end h-full w-1/4">
+          <span class="text-xs font-extrabold text-slate-800 dark:text-white mb-1.5">${d.score}%</span>
+          <div class="w-10 sm:w-14 rounded-t-xl bg-gradient-to-t ${d.gradient} shadow-md transition-all duration-700" style="height: ${Math.max(d.score, 8)}%"></div>
+        </div>
+      `).join('');
+
+      document.getElementById('res-skill-labels').innerHTML = domains.map(d => `
+        <div class="leading-tight">${d.label}</div>
+      `).join('');
+
+      // Populate Detailed Table
+      document.getElementById('res-breakdown-tbody').innerHTML = activityLabels.map(act => {
+        const isChecked = state.checked[act.id];
+        const s = state.scores[act.id] || 0;
+        const detail = state.details[act.id] || 'Activity not checked yet — return to this activity and click Check Answers.';
+        return `
+          <tr>
+            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${act.name}</td>
+            <td class="py-3 px-4">
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold ${isChecked
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300'
+                : 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300'}">
+                ${isChecked ? 'Checked & Locked' : 'Pending'}
+              </span>
+            </td>
+            <td class="py-3 px-4 font-extrabold text-sky-600 dark:text-sky-400">${s}%</td>
+            <td class="py-3 px-4 text-slate-600 dark:text-slate-300 text-xs sm:text-sm">${detail}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Generate 8 Specific Recommendations Dynamically Tailored to User Answers & Scores
+      const recommendations = generate8Recommendations();
+      document.getElementById('res-recommendations-grid').innerHTML = recommendations.map((rec, i) => `
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm flex items-start gap-3">
+          <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">
+            ${i + 1}
+          </div>
+          <div>
+            <div class="font-bold text-sm text-slate-900 dark:text-white">${rec.title}</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">${rec.text}</p>
+          </div>
+        </div>
+      `).join('');
+
+      goToSection(9);
+    }
+
+    function generate8Recommendations() {
+      const s = state.scores;
+      const c = state.checked;
+
+      return [
+        {
+          title: "1. Video Reflection & Target Grammar Integration (Activity 1)",
+          text: !c[1]
+            ? "Complete Activity 1 by watching Video1 and writing at least 3–4 reflective sentences using 'I wish' and 'If only' to describe the characters' decisions."
+            : s[1] >= 85
+              ? "Your video reflection effectively connected visual storytelling with B2 regret structures. Challenge yourself to contrast 'I wish' with 'If only' for dramatic emphasis in future speaking tasks."
+              : "Expand your video response to 30+ words and explicitly include at least two sentences with 'wish + Past Perfect' to evaluate past actions shown in Video1."
+        },
+        {
+          title: "2. Narrative Summarizing & Cohesion (Activity 2)",
+          text: !c[2]
+            ? "Read Image2 carefully and write a concise summary capturing the main conflict, character regret, and resolution without copying sentences word-for-word."
+            : s[2] >= 85
+              ? "Your story summary showed strong paraphrasing and B2 cohesion. Keep using discourse markers like 'consequently', 'nevertheless', and 'in hindsight'."
+              : "Strengthen your story summary by organizing it into Beginning (setting), Middle (problem/regret), and Ending (outcome) using linking expressions."
+        },
+        {
+          title: "3. Cornell Notetaking & ~80-Word Synthesis (Activity 3)",
+          text: !c[3]
+            ? "Fill out all 7 cue questions in the Cornell Notes template and write a tight ~80-word summary at the bottom to consolidate B2 grammar rules."
+            : s[3] >= 80
+              ? "Your Cornell notes demonstrate well-organized B2 study habits. Review your 7 cue questions before tests as a quick self-quizzing flashcard tool."
+              : "Revisit the Cornell cues on 'would' vs. 'could' and practice summarizing complex grammar rules strictly within a 75–85 word window."
+        },
+        {
+          title: "4. Tense Backshifting in Regret Transformations (Activity 4)",
+          text: !c[4]
+            ? "Attempt all 15 compound sentence rewrites in Activity 4, remembering to shift present facts to Past Simple and past mistakes to Past Perfect ('had + V3')."
+            : s[4] >= 80
+              ? `With ${s[4]}% on the 15 transformations, you handle tense backshifting well. Watch out for irregular past participles (e.g., 'spoken', 'worn', 'brought').`
+              : "Focus on distinguishing present states ('I wish I didn't have...') from past regrets ('I wish I hadn't stayed up...'). Never use 'would have' directly after 'I wish'."
+        },
+        {
+          title: "5. Visual-Spatial Focus & Pattern Recognition (Activity 5)",
+          text: !c[5]
+            ? "Start the timer in Activity 5 and assemble all 25 squares of Image3 by matching edge colors, lines, and background gradients."
+            : s[5] === 100
+              ? "You solved all 25 squares of Image3 accurately! Use that same attention to visual detail when proofreading punctuation and verb endings."
+              : "When solving multi-piece visual tasks, anchor corner and border tiles first—just like identifying subject and auxiliary verbs first in complex sentences."
+        },
+        {
+          title: "6. Literary Inference & Subjunctive Nuance (Activity 6)",
+          text: !c[6]
+            ? "Read 'The Bridge' and answer the 6 comprehension questions, paying special attention to how Hemingway uses 'wished he were' and 'If only we had'."
+            : s[6] >= 83
+              ? "Strong literary comprehension on 'The Bridge'! Notice how 'Robert wished he were not there' uses the past subjunctive 'were' to show emotional distance in wartime."
+              : "Re-read paragraphs 5–9 of 'The Bridge' to see how Pilar's dialogue and Robert's 'If only' statements reveal internal conflict versus practical duty."
+        },
+        {
+          title: "7. Active Listening & Reported Wishes (Activity 7)",
+          text: !c[7]
+            ? "Listen to Audio1, Audio2, and Audio3 carefully and summarize what Karla says, what Michael thinks, and what David wishes."
+            : s[7] >= 80
+              ? "Your listening summaries captured the speakers' viewpoints accurately. Practice reporting spoken wishes using 'David wishes he could/had...'."
+              : "Listen to each audio track twice: first for the speaker's general emotion, and second to catch exact modal verbs ('could', 'would', 'had')."
+        },
+        {
+          title: "8. Complex B2 Clause Word Order & Pronunciation (Activity 8)",
+          text: !c[8]
+            ? "Use the 'Listen Audio' buttons in Activity 8 and arrange all 8 scrambled sentences to internalize natural B2 rhythm and clause placement."
+            : s[8] >= 85
+              ? "Excellent syntactic accuracy across all 8 tenses! Shadow-read the audio sentences aloud to reinforce natural English stress on 'wish' and 'if only'."
+              : "Pay attention to adverb placement ('honestly wish', 'deeply wishes') and auxiliary order ('hadn't turned down', 'could have reached') in complex clauses."
+        }
+      ];
+    }
+
+    /* =========================================================================
+       PRINT RESULTS (STARTS CLEANLY AT THE TOP OF THE PAGE)
+    ========================================================================= */
+    function printResults() {
+      // Ensure results section is visible and scrolled to the very top before printing
+      if (state.currentSection !== 9) {
+        submitAndShowResults();
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    }
+  </script>
+</body>
+</html>
